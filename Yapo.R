@@ -4,7 +4,7 @@
 library('rvest')
 
 ### Graficando los productos
-install.packages('ggplot2')
+# install.packages('ggplot2')
 library('ggplot2')
 
 ##########################################################
@@ -46,12 +46,22 @@ contaYapo %>%
 
 # recorriendo paginas
 todosLasCategorias <- list()
-for(i in 1:100){
+for(i in 1:2){
   print(paste("https://www.yapo.cl/region_metropolitana?ca=15_s&o=",i,sep = ""))
   
   paginaDescargada <- read_html(paste("https://www.yapo.cl/region_metropolitana?ca=15_s&o=",i,sep = ""))
   contenidoYapo <- html_nodes(webpageYapo,'.category')
   texto <- html_text(contenidoYapo)
   todosLasCategorias <- c(todosLasCategorias,texto)
-  }
-df <- as.data.frame(todosLasCategorias)
+}
+
+# Contando y pasando a dataframe
+todosLasCategorias <- unlist(textoYapo)
+tablaTextoYapo <- table(todosLasCategorias)
+
+df <- as.data.frame(tablaTextoYapo)
+
+
+##################### llevando a data.frame sólo la lista
+
+df2 <- data.frame(todosLasCategorias = todosLasCategorias)
