@@ -11,6 +11,12 @@ library('ggplot2')
 ###################### PROYECTO YAPO #####################
 ##########################################################
 
+# Abrir csv
+if(file.exists("fileTextoYFreqYapo.txt")){
+  print("Abre CSV")
+  fileTextoYFreqYapo <- read.table(file = "fileTextoYFreqYapo.txt", header = TRUE, sep = " ")
+}
+
 #==================== usando Yapo.cl ====================#
 
 paginaYapo <- 'https://www.yapo.cl/region_metropolitana?ca=15_s&o=1'
@@ -36,17 +42,13 @@ tablaTextoYapo <- table(unlistTextoYapo)
 # Transformando a data framtabla
 contaYapo <- as.data.frame(tablaTextoYapo)
 
-#Grafico de Barra de la información
-contaYapo %>%
-  ggplot() +
-  aes(x = unlistTextoYapo , y = Freq) +
-  geom_bar(stat="identity")
+
 
 #### Esto es un demo
 
 # recorriendo paginas
 todosLasCategorias <- list()
-for(i in 1:2){
+for(i in 1:100){
   print(paste("https://www.yapo.cl/region_metropolitana?ca=15_s&o=",i,sep = ""))
   
   paginaDescargada <- read_html(paste("https://www.yapo.cl/region_metropolitana?ca=15_s&o=",i,sep = ""))
@@ -56,12 +58,20 @@ for(i in 1:2){
 }
 
 # Contando y pasando a dataframe
-todosLasCategorias <- unlist(textoYapo)
-tablaTextoYapo <- table(todosLasCategorias)
+tablaTextoYapo <- table(unlist(todosLasCategorias))
+dfTextoYFreqYapo <- as.data.frame(tablaTextoYapo)
 
-df <- as.data.frame(tablaTextoYapo)
+if(exists("fileTextoYFreqYapo")){
+  print("Uniendo los DataFrames")
+  # uniendo dos dataframes por Var1 sumando frecuencias
+  dfTextoYFreqYapo <- aggregate(cbind(Freq) ~ Var1, rbind(dfTextoYFreqYapo,dfTextoYFreqYapo), sum)
+}
 
+#Grafico de Barra de la información
+dfTextoYFreqYapo %>%
+  ggplot() +
+  aes(x = Var1 , y = Freq) +
+  geom_bar(stat="identity")
 
-##################### llevando a data.frame sólo la lista
-
-df2 <- data.frame(todosLasCategorias = todosLasCategorias)
+# Guardando información en txt
+write.table(dfTextoYFreqYapo, file="fileTextoYFreqYapo.txt")
